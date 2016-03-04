@@ -2,13 +2,19 @@
   Autor: Francisco Enrique Córdova González
   Esta librería es de uso académico únicamente
   Última actualización: 14/02/16
+  Descripción: Esta librería maneja tres tipos de listas :
+  Listas sin repetición
+  Listas con poca repetición
+  Listas con mucha repetición
  */
 //Directivas al compilador
 #pragma once
 #include <iostream>
 
 enum Ubicacion{INICIO,MITAD};
-
+/*
+  Estructura multi-usos para las 3 listas.
+*/
 template <class T> struct mult_caja {
   mult_caja<T> *siguiente;
   T var;
@@ -24,7 +30,7 @@ public:
   list_ord_sin_rep(): principio(NULL), anterior(NULL), donde(INICIO), encontrado(false){};
   ~list_ord_sin_rep();
   bool agregar(T);
-  bool eliminar(T);
+  bool borrar(T);
   void pintar();
 };
 /*
@@ -85,10 +91,9 @@ template <class T> void list_ord_sin_rep<T>::buscar(T var) {
  * T var; Es el elemento a agregar en la lista ordenada sin repetición
  */
 template <class T> bool list_ord_sin_rep<T>::agregar(T var) {
-  mult_caja<T> *p;
   buscar(var);
   if (encontrado) return false;
-  p = new mult_caja<T>;
+  mult_caja<T> *p = new mult_caja<T>;
   p->var = var;
   if (donde == MITAD) {
     p->siguiente = anterior->siguiente;
@@ -100,18 +105,18 @@ template <class T> bool list_ord_sin_rep<T>::agregar(T var) {
   return true;
 }
 /*
- * Esta función se encarga de eliminar un elemento de la lista
+ * Esta función se encarga de borrar un elemento de la lista
  */
-template <class T> bool list_ord_sin_rep<T>::eliminar(T var) {
+template <class T> bool list_ord_sin_rep<T>::borrar(T var) {
   buscar(var);
-  mult_caja<T> *p;
   if (!encontrado) return false;
+  mult_caja<T> *p;
   if (donde == MITAD) {
     p = anterior->siguiente;
     anterior->siguiente = p->siguiente;
   } else {
-      p = principio;
-      principio = p->siguiente;
+    p = principio;
+    principio = p->siguiente;
   }
   delete p;
   return true;
@@ -130,6 +135,8 @@ template <class T> void list_ord_sin_rep<T>::pintar() {
 }
 //**************************************************************************
 //Inicia otra clase, la clase de la lista ordenada con mucha repetición.
+//Las funciones hacen lo mismo así que me abstendré de comentarlas
+//Sólo comentaré las principales diferencias
 template <class T> class list_ord_con_mu_rep {
 private:
   Ubicacion donde;
@@ -144,7 +151,7 @@ public:
   void pintar();
 };
 template <class T> list_ord_con_mu_rep<T>::~list_ord_con_mu_rep() {
-  mult_caja<T> *p = principio;
+  mult_caja<T> *p;
   while (principio) {
     p = principio;
     principio=p->siguiente;
@@ -185,6 +192,7 @@ template <class T> void list_ord_con_mu_rep<T>::buscar(T var) {
 template <class T> bool list_ord_con_mu_rep<T>::agregar(T var) {
   buscar(var);
   if (encontrado) {
+    //Aquí aumentamos sólo la cantidad y no creamos caja nueva
     if (donde == INICIO) principio->cantidad++;
     else anterior->siguiente->cantidad++;
     return true;
@@ -203,9 +211,9 @@ template <class T> bool list_ord_con_mu_rep<T>::agregar(T var) {
   return true;
 }
 template <class T> bool list_ord_con_mu_rep<T>::borrar(T var) {
-  mult_caja<T> *p;
   buscar(var);
   if (encontrado){
+    mult_caja<T> *p;
     if (donde == INICIO) p = principio;
     else p = anterior->siguiente;
     if (p->cantidad > 1) p->cantidad--;
@@ -292,6 +300,20 @@ template <class T> bool list_ord_con_rep<T>::agregar(T var) {
     p->siguiente = principio;
     principio = p;
   }
+  return true;
+}
+template <typename T> bool list_ord_con_rep<T>::borrar(T var) {
+  buscar(var);
+  if (!encontrado) return false;
+  mult_caja<T> *p;
+  if (donde == MITAD) {
+    p = anterior->siguiente;
+    anterior->siguiente = p->siguiente;
+  } else {
+    p = principio;
+    principio->siguiente = p->siguiente;
+  }
+  delete p;
   return true;
 }
 template <class T> void list_ord_con_rep<T>::pintar() {
